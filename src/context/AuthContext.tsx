@@ -1,6 +1,7 @@
 import { createContext, ReactNode, useState } from "react";
-import { destroyCookie } from "nookies";
-import Router from 'next/router';
+import { destroyCookie, setCookie } from "nookies";
+import Router from "next/router";
+import { api } from "../services/apiCliente";
 
 interface AuthContextData {
   user: UserProps;
@@ -31,7 +32,7 @@ export function signOut() {
   console.log("ERROR LOGOUT");
   try {
     destroyCookie(null, "@barber.token", { path: "/" });
-    Router.push('/login')
+    Router.push("/login");
   } catch (err) {
     console.log("erro ao deslogar");
   }
@@ -43,10 +44,37 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   //Função de login
   async function signIn({ email, password }: SignInProps) {
-    console.log({
+    /* console.log({
       email,
       password,
-    });
+    }); */
+    try {
+      const response = await api.post("/auth", {
+        email,
+        password,
+      });
+      const { id, name, token, subscriptions, endereco } = response.data;
+
+      setCookie(undefined, "@barber.token", token, {
+        //o token expira em 30dias [1 mês]
+        maxAge: 60 * 60 * 24 * 30,
+        path: "/",
+      });
+      setUser({
+        id,
+        name,
+        email,
+        endereco,
+        subscriptions,
+      });
+      
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+
+      Router.push('/dashboard')
+
+    } catch (err) {
+      /* console.log("Erro ao fazer login", err); */
+    }
   }
 
   return (
