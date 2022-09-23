@@ -1,16 +1,26 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import Head from "next/head";
 import Image from "next/image";
 import logoImg from "../../../public/images/logo.svg";
 import { Flex, Text, Center, Input, Button } from "@chakra-ui/react";
-
+import { AuthContext } from "../../context/AuthContext";
 import Link from "next/link";
 
 export default function Register() {
+  const { signUp } = useContext(AuthContext);
 
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  async function handleRegister(){
+    if(name === '' && email === '' && password === ''){
+      return;
+    }
+    await signUp({
+      name, email, password
+    })
+  }
 
   return (
     <>
@@ -42,7 +52,7 @@ export default function Register() {
             type="text"
             mb={3}
             value={name}
-            onChange={ (e) => setName(e.target.value)}
+            onChange={(e) => setName(e.target.value)}
           />
           <Input
             background="barber.400"
@@ -52,7 +62,7 @@ export default function Register() {
             type="text"
             mb={3}
             value={email}
-            onChange={ (e) => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
           />
           <Input
             background="barber.400"
@@ -62,10 +72,11 @@ export default function Register() {
             type="text"
             mb={6}
             value={password}
-            onChange={ (e) => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
           />
 
           <Button
+            onClick={handleRegister}
             background="button.cta"
             mb={6}
             color="gray.900"

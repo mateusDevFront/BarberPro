@@ -7,6 +7,8 @@ interface AuthContextData {
   user: UserProps;
   isAuthenticated: boolean;
   signIn: (credentials: SignInProps) => Promise<void>;
+  signUp: (credentials: SignUpProps) => Promise<void>;
+  logoutUser: () => Promise<void>;
 }
 interface UserProps {
   id: string;
@@ -23,6 +25,11 @@ type AuthProviderProps = {
   children: ReactNode;
 };
 interface SignInProps {
+  email: string;
+  password: string;
+}
+interface SignUpProps {
+  name: string;
   email: string;
   password: string;
 }
@@ -44,10 +51,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   //Função de login
   async function signIn({ email, password }: SignInProps) {
-    /* console.log({
-      email,
-      password,
-    }); */
     try {
       const response = await api.post("/auth", {
         email,
@@ -67,18 +70,47 @@ export function AuthProvider({ children }: AuthProviderProps) {
         endereco,
         subscriptions,
       });
-      
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`
 
-      Router.push('/dashboard')
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
+      Router.push("/dashboard");
     } catch (err) {
       /* console.log("Erro ao fazer login", err); */
     }
   }
+  //Função de cadastro
+  async function signUp({ name, email, password }: SignUpProps) {
+    try {
+      const response = await api.post("/users", {
+        name,
+        email,
+        password,
+      });
+      Router.push("/login");
+    } catch (err) {
+      console.log(err);
+    }
+  }
+  //Função de logout
+  async function logoutUser() {
+    try {
+      destroyCookie(null, "@barber.token", { path: "/" });
+      Router.push("/login");
+      setUser(null);
+    } catch (err) {
+      console.log("erro ao sair", err);
+    }
+  }
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, signIn }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated,
+        signIn,
+        signUp,
+        logoutUser,
+      }}>
       {children}
     </AuthContext.Provider>
   );
