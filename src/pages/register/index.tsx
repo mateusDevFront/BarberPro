@@ -79,7 +79,7 @@ export default function Register() {
           />
 
           <Button
-            onClick={handleRegister}
+            onClick={handleRegister} 
             background="button.cta"
             mb={6}
             color="gray.900"
