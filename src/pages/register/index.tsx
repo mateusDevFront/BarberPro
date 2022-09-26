@@ -5,6 +5,7 @@ import logoImg from "../../../public/images/logo.svg";
 import { Flex, Text, Center, Input, Button } from "@chakra-ui/react";
 import { AuthContext } from "../../context/AuthContext";
 import Link from "next/link";
+import { canSSRGuest } from "../../utils/canSSRGuest";
 
 export default function Register() {
   const { signUp } = useContext(AuthContext);
@@ -13,13 +14,15 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  async function handleRegister(){
-    if(name === '' && email === '' && password === ''){
+  async function handleRegister() {
+    if (name === "" && email === "" && password === "") {
       return;
     }
     await signUp({
-      name, email, password
-    })
+      name,
+      email,
+      password,
+    });
   }
 
   return (
@@ -99,3 +102,8 @@ export default function Register() {
     </>
   );
 }
+export const getServerSideProps = canSSRGuest(async (ctx) => {
+  return {
+    props: {},
+  };
+});
